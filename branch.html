@@ -1,0 +1,121 @@
+<style>
+    #b {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, #456, #200);
+    }
+</style>
+<canvas id="b"></canvas>
+<audio id="a"></audio>
+<script>
+    c = b.getContext('2d');
+    MAX = 96 * 1000 * 2;
+    W_MAX = 10;
+    onload = function update() {
+        requestAnimationFrame(update);
+
+        //init
+        if (!window.time) {
+            time = 0;
+            frame = 0;
+            timeNextFrame = 0;
+            rays = [
+                {
+                    x: 0,
+                    y: 0,
+                    a: 0,
+                    ai: 0,
+                    w: W_MAX,
+                    p: [],
+                    l: MAX,
+                }
+            ];
+            // x,y,heading(angle),twist heading (increment of heading) (angle), width, position
+        }
+        currentTime = performance.now()/1000; // time from the app starts
+        // currentTime = 20000;
+        // update time
+        while (time < currentTime) {
+            while (time < timeNextFrame) {
+                time += 1 / 16384;
+            }
+            frame++;
+            timeNextFrame += 1 / 60;
+
+
+            // update visuals
+            rays = rays.filter(v => v.l--);
+            rays.forEach(v => {
+                // dx, dy proportional to the width of the vein
+                // v.a as the heading
+                dx = Math.cos(v.a) * v.w / 2;
+                dy = Math.sin(v.a) * v.w / 2;
+
+                v.x += dx;
+                v.y += dy;
+                v.a += v.ai / (v.w)/ 2;
+                // v.a = Math.abs(v.a);
+                v.p.splice(0, v.p.length - v.l);
+                v.p.splice(0, v.p.length - 60);
+                v.p.push({
+                    x: v.x,
+                    y: v.y,
+                    // dx: dx,
+                    // dy: dy
+                });
+                if (frame % 30 == 0) {
+                    v.ai = 16384 / 50 * (Math.random()-0.5) / v.l;
+                }
+                if (v.w > 1 && Math.random() < v.l / 16384 / 8) {
+                    rays.push({
+                        x: v.x - 5,
+                        y: v.y + 2 * (Math.random() - 0.5),
+                        a: v.a,
+                        ai: v.ai,
+                        w: v.w/2,
+                        p: [],
+                        l: Math.min(v.l, 0|v.w * 32 * (1 + Math.random())),
+                    });
+                }
+
+            })
+        }
+
+        H = b.height = 512;
+        W = b.width = 0 | H * innerWidth / innerHeight;
+        // c.translate(W / 3, 2* H / 3);
+        c.translate(4*W/5,H/2);
+        c.shadowBlur = 24;
+        c.globalAlpha = 0.8;
+        // render visual
+        rays.forEach(v => {
+            c.strokeWidth = v.w * 10;
+
+            c.shadowColor =
+                c.strokeStyle = 'hsl('+(v.a*60|0)+',100%,'+(60+v.w*5)+'%)';
+            // c.fillStyle = 'rgba(0,0,0,'+0.2+')';
+            if (v.w == W_MAX) {
+                // c.rotate(-v.a + 135);
+                c.translate(-v.x, -v.y);
+            } // center on the first branch
+            c.beginPath();
+            // c.moveTo(0,0);
+            l = v.p.length - 1;
+            for (i = l; p = v.p[i];i--) {
+                c.lineTo(p.x, p.y);
+            }
+            c.stroke();
+
+        })
+        // c.stroke();
+        // c.stroke();
+        // c.strokeText([W, H, frame], 0, 0);
+    }
+
+    // how about circles?
+    // bubbles?
+
+</script>

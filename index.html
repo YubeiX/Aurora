@@ -1,0 +1,351 @@
+<style>
+    #b {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /*background: radial-gradient(circle, #456, #200);*/
+        /*background-image: url("img/7108632527_7f7b68b60e_b.jpg");*/
+        /*background-image: url("img/Night-sky-above-the-mountains-HD-wallpaper.jpg");*/
+        background-image: url("img/northern-lights-1081752_960_720.jpg");
+    }
+</style>
+<canvas id="b"></canvas>
+<audio id="a"></audio>
+<script>
+    c = b.getContext('2d');
+    var backbone = false;
+    var rays = true;
+    var currentTime, time, frame, timeNextFrame;
+    var streams = [];
+    const OSC = 0.1;
+    const STREAM_NUM = 2;
+    const RAY_LENGTH = 500;
+    const RAY_WIDTH = 5;
+    const RAY_DEPTH = 4; // lower for better performance
+    const STREAM_LENGTH = 10000;
+    const GAP = 0.05;
+    const OPACITY = 0.8;
+    const FLAT = 5;
+
+    const H = b.height = 512;
+    const W = b.width = 0 | H * innerWidth / innerHeight;
+
+    const streamExample =  {
+        x: 0,
+        y: H / 3,
+        // start from the center of left edge of the screen
+
+        a: 0, // stream heading
+        ai: 0,  // angular velocity of stream heading
+        w: RAY_WIDTH, // width of the rays
+        rays: [],
+        o: OPACITY,
+        l: STREAM_LENGTH,
+        li: 0,
+        colorOffset: 0,
+        colorScale: Math.random(),
+    };
+
+    onload = function update() {
+        c.globalAlpha = 0.8;
+
+        requestAnimationFrame(update);
+
+        //init
+        if (!window.time) {
+            time = 0;
+            frame = 0;
+            timeNextFrame = 0;
+            streams = [
+                {
+                    x: 0,
+                    y: H / 3,
+                    // start from the center of left edge of the screen
+
+                    a: 0, // stream heading
+                    ai: 0,  // angular velocity of stream heading
+                    w: RAY_WIDTH, // width of the rays
+                    rays: [],
+                    o: OPACITY,
+                    l: STREAM_LENGTH,
+                    li: 0,
+                    colorOffset: 0,
+                    colorScale: Math.random(),
+                }
+            ];
+
+            console.log(streams[0]);
+            for (var i = 0; i < STREAM_NUM-1; i++) {
+                var newStream = streamExample;
+                newStream.x = Math.random() * W;
+                newStream.y = Math.random() * H / 3;
+                newStream.o = (Math.random() / 2 + 0.5) * OPACITY;
+                newStream.colorOffset = 100 * Math.random();
+                newStream.colorScale = Math.random();
+                console.log(newStream);
+                streams.push(newStream);
+                console.log(streams);
+            }
+
+            streams.forEach(s => makeStream(s));
+            // console.log(streams[0].rays.length);
+
+        }
+        currentTime = performance.now() / 1000; // time from the app starts
+        // currentTime = 20000;
+        // update time
+        while (time < currentTime) {
+            while (time < timeNextFrame) {
+                time += 1 / 16384;
+            }
+            frame++;
+            timeNextFrame += 1 / 60;
+            // update visuals
+
+            // update stream
+            streams.forEach(s => {
+                if (frame % 100 == 0) {
+                    s.li = (Math.random() - 0.5);
+                }
+                var lprev = RAY_LENGTH * Math.random();
+                var i = 0;
+                if (frame == 1){
+                    console.log(frame);
+                    console.log(streams);
+                }
+                s.rays.forEach(r => {
+                    r = s.rays[i];
+                    /** change ray position **/
+                    // TODO: problem: OSC is accumulative
+                    r.x += OSC * (Math.random() - 0.5);
+                    r.y += 16384 / 100000 * (Math.random() - 0.5) * Math.cos(i);
+                    /** change ray length */
+                    r.l = lprev * 0.2 + r.l * 0.8 + 16384 / 100000 * s.li * (Math.random());
+                    // random spike
+                    if (Math.random() > 0.9999) {
+                        // console.log('spike!!');
+                        r.w *= 1.5 * Math.cos(i);
+                        r.l *= Math.random() + 1;
+                    }
+                    lprev = r.l;
+                    i++;
+                });
+
+            })
+
+            // TODO: update rays??
+
+        }
+
+        c.clearRect(0, 0, W, H);
+
+        // render visual
+        // draw stream backbone
+        if (backbone) {
+            streams.forEach(s => {
+                // console.log(s);
+                c.strokeWidth = s.w * 10;
+
+                // c.fillStyle = 'rgba(0,0,0,'+0.2+')';
+                c.beginPath();
+                // c.moveTo(0,0);
+                l = s.rays.length - 1;
+                for (i = l; p = s.rays[i]; i--) {
+                    c.lineTo(p.x, p.y);
+                }
+                c.stroke();
+
+            })
+        }
+
+        if (rays) {
+            // draw rays
+            //c.globalAlpha = 0.5;
+            c.shadowBlur = 50;
+            streams.forEach(s => {
+                // c.shadowColor = c.fillStyle = 'rgba(1,1,1,'+0.2+')';
+                // c.fillStyle = 'rgba(0,0,0,'+0.2+')';
+                // c.moveTo(0,0);
+                for (var i = 0; r = s.rays[i]; i++) {
+                    c.strokeWidth = r.w * 10;
+
+                    // TODO: replace this fake gradient method or change ray depth def (#depth)
+                    var discret = r.l / RAY_DEPTH;
+
+                    // TODO: make this color more aurorae looking (function)
+                    var color = i / s.l * 200 * s.colorScale + 160;
+                    // console.log(Math.cos((2*3.14 * i/s.l-3.14/2)^1.5)+1);
+                    var op =  s.o * r.w * 10 * (s.l/2 - Math.abs(i - s.l/2)) / s.l * 3;
+                    // var op =  s.o * r.w * 10 * (s.l/2 - Math.abs(i - s.l/2)) / s.l * 10;
+                    // var grd= c.createLinearGradient(0,0,170,0);
+                    // color = 'hsla(' + (color + s.colorOffset | 0) + ',' + r.w * 10 + '%,' + (80) + '%,' + (op | 0) + '%)';
+                    // grd.addColorStop(0,color);
+                    // grd.addColorStop(1,'rgb(0,0,0,0)');
+                    // c.shadowColor = color;
+                    // c.strokeStyle = grd;
+                    // c.beginPath();
+                    // c.lineTo(r.x, r.y);
+                    // c.lineTo(r.x, r.y - r.l);
+                    // c.stroke();
+                    // console.log(i+':'+ op);
+                    // console.log('discret : '+ discret)
+                    // for (var j = 0; j < discret; j++) {
+                    //     var color  = c.shadowColor =
+                    //         c.strokeStyle = 'hsla(' + (color + s.colorOffset | 0) + ',' + 50 + '%,' + r.w * 8 * (discret - j) / discret + '%,' + (op * (discret - j) / discret | 0) + '%)';
+
+                        /* stroke */
+                        // c.beginPath();
+                        // c.lineTo(r.x, r.y - RAY_DEPTH * j);
+                        // c.lineTo(r.x, r.y - RAY_DEPTH * j - RAY_DEPTH);
+                        // c.stroke();
+
+                        /* rect */
+                        var grd = c.createLinearGradient(0, 0, 0, r.l);
+                        //grd.addColorStop(1, 'hsla(' + (color + s.colorOffset | 0) + ',' + 100  + '%,' + 10000000 / r.y+ '%, ' + r.w * 10 + '%)');
+                        for (var j = 1; j <= RAY_DEPTH; j++){
+                            grd.addColorStop(j / RAY_DEPTH, getColor(r.y + r.l * j / RAY_DEPTH));
+                        }
+                        // grd.addColorStop(0, "rgba(0, 0, 0, 0.0)");
+
+                        c.fillStyle = grd;
+                        c.fillRect(r.x, r.y - r.l, r.w, r.l);
+                    // }
+                }
+            })
+        }
+
+
+
+
+        // render
+        // rays.forEach(r => {
+        //     c.strokeWidth = r.w / 5 ;//* 10;
+        //     c.shadowColor = c.strokeStyle = 'hsl('+(r.a*60|0)+',100%,'+(60+r.w*5)+'%)';
+        //
+        //     // translate canvas to something?
+        //     // if (r.w == WIDTH) {
+        //     //     // c.rotate(-v.a + 135);
+        //     //     c.translate(-r.x, -r.y);
+        //     // } // center on the first branch
+        //
+        //     ;
+        //     // c.moveTo(0,0);
+        //     l = r.p.length - 1;
+        //     // for (i = l; p = r.p[i];i--) {
+        //     p = r.p[l];
+        //     c.beginPath()
+        //     // c.lineTo(p.x,p.y);
+        //     c.lineTo(p.x - p.x%GAP, p.y-p.l/2);
+        //     c.lineTo(p.x - p.x%GAP, p.y+p.l/2);
+        //     c.stroke();
+        //     // c.clearRect(0,0,W,H);
+        //     // }
+        //     //  l = (r.p.length - 1);
+        //     //  //for (i = l; p = r.p[i];i--) {
+        //     //      // p = r.p[l];
+        //     //      c.beginPath()
+        //     //      // c.lineTo(p.x,p.y);
+        //     //      c.lineTo(p.x - p.x%GAP, p.y-p.l/2);
+        //     //      c.lineTo(p.x - p.x%GAP, p.y+p.l/2);
+        //     //      c.stroke();
+        //     //      // c.clearRect(0,0,W,H);
+        //     // // }
+        //     //  l = (r.p.length - 1);
+        //     //  for (i = l; p = r.p[i];i--) {
+        //     //      // p = r.p[l];
+        //     //      c.beginPath()
+        //     //      // c.lineTo(p.x,p.y);
+        //     //      c.lineTo(p.x - p.x%GAP, p.y-p.l/2);
+        //     //      c.lineTo(p.x - p.x%GAP, p.y+p.l/2);
+        //     //      c.stroke();
+        //     //      // c.clearRect(0,0,W,H);
+        //     //  }
+        // })
+
+    }
+
+    function makeStream(s){
+        for (var i =0; i < s.l; i++) {
+            // while(true) {
+            dx = Math.cos(s.a) * s.w * GAP;
+            dy = Math.sin(s.a) * s.w / 2;
+
+            s.x += dx;
+            s.y += dy;
+            s.a += s.ai / (s.w) / 2;
+            // s.a = Math.abs(s.a);
+            // if (s.p.length > STREAM_LENGTH) {
+            //     break;
+            // }
+            // console.log(s)
+
+
+            /** splice aurora when reaching the lower sky or exceeding the screen */
+            if (s.y< 0 || s.x<0 ||s.y > 3* H/ 4 || s.x>W){
+                s.l = i;
+            }
+
+            /** creat rays */
+            s.rays.push({
+                x: s.x,
+                //y: (1 - Math.exp( - Math.abs( s.y )/1000)) * H/2,
+                y: s.y,
+                l: RAY_LENGTH * Math.random(),
+                w: RAY_WIDTH * Math.random(),
+
+                //y: H/2 * (1 - MATH_E^(-s.y)),
+                // dx: dx,
+                // dy: dy
+            });
+            // console.log(frame);
+
+            // TODO: useless rightnow because this is on;y run at initialisation
+            if (frame % 50 == 0) {
+                // console.log(s.ai);
+                s.ai = 16384 / 50 * (Math.random() - 0.5) * (Math.random() - 0.5) * GAP / FLAT;
+            }
+        }
+
+
+
+        // console.log(s);
+    }
+
+    function getColor(h){
+        var r,g,b,i;
+        var shift = 400
+        h = (H - h + shift) * 300 / (H + shift);
+
+        if (h >= 160 && h <= 240) {
+            r = 0.0025 * (h - 160);
+        }else if (h > 240) {
+            r = 0.2;
+        }else {
+            r = 0;
+        }
+
+        if (h < 140 && h > 100) {
+            g = 0.025 * (h - 100);
+        }else if (h >= 140 && h <= 240) {
+            g = (1 - 0.01 * (h - 140));
+        }else {
+            g = 0;
+        }
+
+        if (h < 140 && h > 100) {
+            b  = 0.0125 * (h - 100);
+        }else if (h >= 140 && h <= 240) {
+            b = (0.5 - 0.005 * (h - 140));
+        }else {
+            b = 0;
+        }
+        i = Math.max(r,g,b);
+
+        var color = 'rgb('+ 255 * r +','+ 255 * g +','+ 255 * b +','+ 0.5 * i * Math.pow(h,2) /100000  +')';
+        return color;
+
+    }
+
+</script>
