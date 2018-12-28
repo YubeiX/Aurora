@@ -170,99 +170,19 @@
                 // c.moveTo(0,0);
                 for (var i = 0; r = s.rays[i]; i++) {
                     c.strokeWidth = r.w * 10;
+                    var grd = c.createLinearGradient(0, 0, 0, r.l);
+                    //grd.addColorStop(1, 'hsla(' + (color + s.colorOffset | 0) + ',' + 100  + '%,' + 10000000 / r.y+ '%, ' + r.w * 10 + '%)');
+                    for (var j = 1; j <= RAY_DEPTH; j++){
+                        grd.addColorStop(j / RAY_DEPTH, getColor(r.y + r.l * j / RAY_DEPTH));
+                    }
+                    // grd.addColorStop(0, "rgba(0, 0, 0, 0.0)");
 
-                    // TODO: replace this fake gradient method or change ray depth def (#depth)
-                    var discret = r.l / RAY_DEPTH;
+                    c.shadowColor = c.fillStyle = grd;
+                    c.fillRect(r.x, r.y - r.l, r.w, r.l);
 
-                    // TODO: make this color more aurorae looking (function)
-                    var color = i / s.l * 200 * s.colorScale + 160;
-                    // console.log(Math.cos((2*3.14 * i/s.l-3.14/2)^1.5)+1);
-                    var op =  s.o * r.w * 10 * (s.l/2 - Math.abs(i - s.l/2)) / s.l * 3;
-                    // var op =  s.o * r.w * 10 * (s.l/2 - Math.abs(i - s.l/2)) / s.l * 10;
-                    // var grd= c.createLinearGradient(0,0,170,0);
-                    // color = 'hsla(' + (color + s.colorOffset | 0) + ',' + r.w * 10 + '%,' + (80) + '%,' + (op | 0) + '%)';
-                    // grd.addColorStop(0,color);
-                    // grd.addColorStop(1,'rgb(0,0,0,0)');
-                    // c.shadowColor = color;
-                    // c.strokeStyle = grd;
-                    // c.beginPath();
-                    // c.lineTo(r.x, r.y);
-                    // c.lineTo(r.x, r.y - r.l);
-                    // c.stroke();
-                    // console.log(i+':'+ op);
-                    // console.log('discret : '+ discret)
-                    // for (var j = 0; j < discret; j++) {
-                    //     var color  = c.shadowColor =
-                    //         c.strokeStyle = 'hsla(' + (color + s.colorOffset | 0) + ',' + 50 + '%,' + r.w * 8 * (discret - j) / discret + '%,' + (op * (discret - j) / discret | 0) + '%)';
-
-                        /* stroke */
-                        // c.beginPath();
-                        // c.lineTo(r.x, r.y - RAY_DEPTH * j);
-                        // c.lineTo(r.x, r.y - RAY_DEPTH * j - RAY_DEPTH);
-                        // c.stroke();
-
-                        /* rect */
-                        var grd = c.createLinearGradient(0, 0, 0, r.l);
-                        //grd.addColorStop(1, 'hsla(' + (color + s.colorOffset | 0) + ',' + 100  + '%,' + 10000000 / r.y+ '%, ' + r.w * 10 + '%)');
-                        for (var j = 1; j <= RAY_DEPTH; j++){
-                            grd.addColorStop(j / RAY_DEPTH, getColor(r.y + r.l * j / RAY_DEPTH));
-                        }
-                        // grd.addColorStop(0, "rgba(0, 0, 0, 0.0)");
-
-                        c.fillStyle = grd;
-                        c.fillRect(r.x, r.y - r.l, r.w, r.l);
-                    // }
                 }
             })
         }
-
-
-
-
-        // render
-        // rays.forEach(r => {
-        //     c.strokeWidth = r.w / 5 ;//* 10;
-        //     c.shadowColor = c.strokeStyle = 'hsl('+(r.a*60|0)+',100%,'+(60+r.w*5)+'%)';
-        //
-        //     // translate canvas to something?
-        //     // if (r.w == WIDTH) {
-        //     //     // c.rotate(-v.a + 135);
-        //     //     c.translate(-r.x, -r.y);
-        //     // } // center on the first branch
-        //
-        //     ;
-        //     // c.moveTo(0,0);
-        //     l = r.p.length - 1;
-        //     // for (i = l; p = r.p[i];i--) {
-        //     p = r.p[l];
-        //     c.beginPath()
-        //     // c.lineTo(p.x,p.y);
-        //     c.lineTo(p.x - p.x%GAP, p.y-p.l/2);
-        //     c.lineTo(p.x - p.x%GAP, p.y+p.l/2);
-        //     c.stroke();
-        //     // c.clearRect(0,0,W,H);
-        //     // }
-        //     //  l = (r.p.length - 1);
-        //     //  //for (i = l; p = r.p[i];i--) {
-        //     //      // p = r.p[l];
-        //     //      c.beginPath()
-        //     //      // c.lineTo(p.x,p.y);
-        //     //      c.lineTo(p.x - p.x%GAP, p.y-p.l/2);
-        //     //      c.lineTo(p.x - p.x%GAP, p.y+p.l/2);
-        //     //      c.stroke();
-        //     //      // c.clearRect(0,0,W,H);
-        //     // // }
-        //     //  l = (r.p.length - 1);
-        //     //  for (i = l; p = r.p[i];i--) {
-        //     //      // p = r.p[l];
-        //     //      c.beginPath()
-        //     //      // c.lineTo(p.x,p.y);
-        //     //      c.lineTo(p.x - p.x%GAP, p.y-p.l/2);
-        //     //      c.lineTo(p.x - p.x%GAP, p.y+p.l/2);
-        //     //      c.stroke();
-        //     //      // c.clearRect(0,0,W,H);
-        //     //  }
-        // })
 
     }
 
