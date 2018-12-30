@@ -9,10 +9,30 @@
         /*background-image: url("img/7108632527_7f7b68b60e_b.jpg");*/
         /*background-image: url("img/Night-sky-above-the-mountains-HD-wallpaper.jpg");*/
         background-image: url("img/northern-lights-1081752_960_720.jpg");
+        background-size: cover;
+        z-index:-1;
+    }
+    .content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-family: "Gill Sans";
+        font-weight: normal;
+        font-size: 60px;
+        color: rgba(208, 208, 208, 0.8);
+        z-index:999;
+
     }
 </style>
 <canvas id="b"></canvas>
 <audio id="a"></audio>
+<div class="content">
+    <p style = " margin-bottom: 0%;">Welcome</p>
+    <p style =" font-size: 20px; font-weight: lighter ; margin-top: 0%;">Northen Lights</p>
+</div>
 <script>
     c = b.getContext('2d');
     var backbone = false;
@@ -21,13 +41,13 @@
     var streams = [];
     const OSC = 0.1;
     const STREAM_NUM = 2;
-    const RAY_LENGTH = 500;
+    const RAY_LENGTH = 400;
     const RAY_WIDTH = 5;
-    const RAY_DEPTH = 4; // lower for better performance
-    const STREAM_LENGTH = 10000;
-    const GAP = 0.05;
+    const RAY_DEPTH = 6; // #strata
+    const STREAM_LENGTH = 12000;
+    const GAP = 0.03;
     const OPACITY = 0.8;
-    const FLAT = 5;
+    const FLAT = 50;
 
     const H = b.height = 512;
     const W = b.width = 0 | H * innerWidth / innerHeight;
@@ -61,7 +81,7 @@
             streams = [
                 {
                     x: 0,
-                    y: H / 3,
+                    y: H/2,
                     // start from the center of left edge of the screen
 
                     a: 0, // stream heading
@@ -70,23 +90,38 @@
                     rays: [],
                     o: OPACITY,
                     l: STREAM_LENGTH,
-                    li: 0,
-                    colorOffset: 0,
-                    colorScale: Math.random(),
+                    li: 0
                 }
             ];
 
-            console.log(streams[0]);
-            for (var i = 0; i < STREAM_NUM-1; i++) {
-                var newStream = streamExample;
-                newStream.x = Math.random() * W;
-                newStream.y = Math.random() * H / 3;
-                newStream.o = (Math.random() / 2 + 0.5) * OPACITY;
-                newStream.colorOffset = 100 * Math.random();
-                newStream.colorScale = Math.random();
-                console.log(newStream);
+            makeStream(streams[0]);
+            // console.log(streams[0]);
+            for (var i = 0; i < STREAM_NUM - 1; i++) {
+                var newStream = jsonCopy(streams[streams.length - 1]);
+                newStream.o = newStream.o * 0.8//(Math.random() / 2 + 0.5) * OPACITY;
+                newStream.w = newStream.w * 1.2;
+                newStream.l = newStream.l * 0.8;
+                newStream.rays.slice(100);
+                newStream.l = STREAM_LENGTH;
+
+                newStream.rays.forEach(r => {
+                    /** shift ray position **/
+                    r.x += OSC * 5 * (Math.random() - 0.5) + 100;
+                    r.y += OSC * 2 * (Math.random() - 0.5) + 20;
+                })
+
+                // if (Math.random() > 0.5) {
+                newStream.x = newStream.rays[newStream.rays.length - 1].x;
+                newStream.y = newStream.rays[newStream.rays.length - 1].y;
+                // }else{
+                //     newStream.x = 0;
+                //     newStream.y = Math.random() * H / 3;
+                // }
+
+                // console.log(newStream);
                 streams.push(newStream);
-                console.log(streams);
+                // console.log(streams);
+                // console.log(streamExample);
             }
 
             streams.forEach(s => makeStream(s));
@@ -116,9 +151,8 @@
                     console.log(streams);
                 }
                 s.rays.forEach(r => {
-                    r = s.rays[i];
+                    // r = s.rays[i];
                     /** change ray position **/
-                    // TODO: problem: OSC is accumulative
                     r.x += OSC * (Math.random() - 0.5);
                     r.y += 16384 / 100000 * (Math.random() - 0.5) * Math.cos(i);
                     /** change ray length */
@@ -163,19 +197,32 @@
         if (rays) {
             // draw rays
             //c.globalAlpha = 0.5;
-            c.shadowBlur = 50;
+            // c.shadowBlur = 50;
             streams.forEach(s => {
                 // c.shadowColor = c.fillStyle = 'rgba(1,1,1,'+0.2+')';
                 // c.fillStyle = 'rgba(0,0,0,'+0.2+')';
                 // c.moveTo(0,0);
-                for (var i = 0; r = s.rays[i]; i++) {
-                    c.strokeWidth = r.w * 10;
-                    var grd = c.createLinearGradient(0, 0, 0, r.l);
+                for (var i = 0; i < s.rays.length; i++) {
+                    var r = s.rays[i];
+                    // c.strokeWidth = r.w * 10;
+                    var grd = c.createLinearGradient(0, r.y - r.l | 0, 0, r.y);
                     //grd.addColorStop(1, 'hsla(' + (color + s.colorOffset | 0) + ',' + 100  + '%,' + 10000000 / r.y+ '%, ' + r.w * 10 + '%)');
-                    for (var j = 1; j <= RAY_DEPTH; j++){
-                        grd.addColorStop(j / RAY_DEPTH, getColor(r.y + r.l * j / RAY_DEPTH));
+                    grd.addColorStop(0, "rgba(1,1,1,0)"); // top
+                    // linear strata
+                    // console.log(s.o);
+                    for (var j = 2; j <= RAY_DEPTH - 2; j++){
+                        grd.addColorStop(j / RAY_DEPTH, getColor(r.y + r.l * j / RAY_DEPTH, s.o));
                     }
-                    // grd.addColorStop(0, "rgba(0, 0, 0, 0.0)");
+                    // console.log(r.l);
+                    // if (r.l > 200){
+                        grd.addColorStop(0.9, getColor(r.y + r.l * 0.9, s.o)); // bottom
+                    // }
+                    // exponential strata (no-bueno)
+                    // for (var j = RAY_DEPTH - 2 ; j > 1; j--){
+                    //     var pos = Math.pow(2.71828, -j);
+                    //     grd.addColorStop(pos, getColor(r.y + r.l * pos));
+                    // }
+                    grd.addColorStop(1, "rgba(1,1,1,0)"); // bottom
 
                     c.shadowColor = c.fillStyle = grd;
                     c.fillRect(r.x, r.y - r.l, r.w, r.l);
@@ -187,10 +234,15 @@
     }
 
     function makeStream(s){
-        for (var i =0; i < s.l; i++) {
+        // console.log(s.l);
+        // console.log(s.rays.length);
+        for (var i = s.rays.length; i < s.l; i++) {
+            if( i > 3000){
+                console.log(i);
+            }
             // while(true) {
-            dx = Math.cos(s.a) * s.w * GAP;
-            dy = Math.sin(s.a) * s.w / 2;
+            var dx = Math.cos(s.a) * s.w * GAP;
+            var dy = Math.sin(s.a) * s.w / 2;
 
             s.x += dx;
             s.y += dy;
@@ -203,7 +255,7 @@
 
 
             /** splice aurora when reaching the lower sky or exceeding the screen */
-            if (s.y< 0 || s.x<0 ||s.y > 3* H/ 4 || s.x>W){
+            if (s.y< 0 || s.x<0 ||s.y >  5 * H/ 6 || s.x>W){
                 s.l = i;
             }
 
@@ -233,15 +285,15 @@
         // console.log(s);
     }
 
-    function getColor(h){
+    function getColor(h,opa){
         var r,g,b,i;
-        var shift = 400
+        var shift = 200
         h = (H - h + shift) * 300 / (H + shift);
 
         if (h >= 160 && h <= 240) {
             r = 0.0025 * (h - 160);
         }else if (h > 240) {
-            r = 0.2;
+            r = 0.2 - 0.003 * (h - 240);
         }else {
             r = 0;
         }
@@ -263,9 +315,12 @@
         }
         i = Math.max(r,g,b);
 
-        var color = 'rgb('+ 255 * r +','+ 255 * g +','+ 255 * b +','+ 0.5 * i * Math.pow(h,2) /100000  +')';
+        var color = 'rgb('+ 255 * r +','+ 255 * g +','+ 255 * b +','+ 0.5 * i * h /1000 * opa  +')';
         return color;
 
+    }
+    function jsonCopy(src) {
+        return JSON.parse(JSON.stringify(src));
     }
 
 </script>

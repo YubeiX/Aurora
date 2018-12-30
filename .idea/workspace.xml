@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cf75aea6-21af-48ed-8dd6-a65984e99a42" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/img/northern-lights-1081752_960_720.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/img/northern-lights-1081752_960_720.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rgbTest.m" beforeDir="false" afterPath="$PROJECT_DIR$/rgbTest.m" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -37,13 +39,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="html" value="6846" />
+          <entry key="html" value="8539" />
           <entry key="js" value="220" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="6846" />
+          <entry key="HTML" value="8539" />
           <entry key="JavaScript" value="220" />
         </counts>
       </usages-collector>
@@ -66,8 +68,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="521">
-              <caret line="212" column="37" lean-forward="true" selection-start-line="212" selection-start-column="37" selection-end-line="212" selection-end-column="37" />
+            <state relative-caret-position="445">
+              <caret line="48" column="24" lean-forward="true" selection-start-line="48" selection-start-column="24" selection-end-line="48" selection-end-column="24" />
+              <folding>
+                <element signature="n#style#0;n#p#0;n#div#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#p#1;n#div#0;n#!!top" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -99,6 +105,11 @@
       <find>ray_length</find>
       <find>flat</find>
       <find>console.log</find>
+      <find>OPACITY</find>
+      <find>FLAT</find>
+      <find>shadow</find>
+      <find>s.li</find>
+      <find>s.l</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -125,7 +136,7 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
     <option name="width" value="1440" />
     <option name="height" value="900" />
   </component>
@@ -207,12 +218,12 @@
       <workItem from="1539360592027" duration="6733000" />
       <workItem from="1540246510023" duration="731000" />
       <workItem from="1540332540806" duration="17096000" />
-      <workItem from="1546009524641" duration="6972000" />
+      <workItem from="1546009524641" duration="16688000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="31963000" />
+    <option name="totallyTimeSpent" value="41679000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -224,7 +235,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4972826" visible="true" weight="0.13376252" />
@@ -315,8 +326,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="521">
-          <caret line="212" column="37" lean-forward="true" selection-start-line="212" selection-start-column="37" selection-end-line="212" selection-end-column="37" />
+        <state relative-caret-position="445">
+          <caret line="48" column="24" lean-forward="true" selection-start-line="48" selection-start-column="24" selection-end-line="48" selection-end-column="24" />
+          <folding>
+            <element signature="n#style#0;n#p#0;n#div#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#p#1;n#div#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
