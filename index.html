@@ -30,8 +30,11 @@
 <canvas id="b"></canvas>
 <audio id="a"></audio>
 <div class="content">
-    <p style = " margin-bottom: 0%;">Welcome</p>
-    <p style =" font-size: 20px; font-weight: lighter ; margin-top: 0%;">Northen Lights</p>
+    <p style = " margin-bottom: 0%; color: rgba(208, 208, 208, 1);">AURORA</p>
+    <p style =" font-size: 20px; font-weight: lighter ; margin-top: 0%;">
+        <img src="img/icn-key-cmd-512.png" height="20" width="20" style = "opacity: 0.8; margin-bottom: -3px"/>+R
+        Refresh to see more.
+        </p>
 </div>
 <script>
     c = b.getContext('2d');
@@ -176,7 +179,7 @@
         c.clearRect(0, 0, W, H);
 
         // render visual
-        // draw stream backbone
+        /** draw stream backbone */
         if (backbone) {
             streams.forEach(s => {
                 // console.log(s);
@@ -195,7 +198,7 @@
         }
 
         if (rays) {
-            // draw rays
+            /** draw rays */
             //c.globalAlpha = 0.5;
             // c.shadowBlur = 50;
             streams.forEach(s => {
@@ -273,7 +276,6 @@
             });
             // console.log(frame);
 
-            // TODO: useless rightnow because this is on;y run at initialisation
             if (frame % 50 == 0) {
                 // console.log(s.ai);
                 s.ai = 16384 / 50 * (Math.random() - 0.5) * (Math.random() - 0.5) * GAP / FLAT;
